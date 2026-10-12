@@ -1,0 +1,154 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" path="res://player.gd" id="2_player"]
+[ext_resource type="SpriteFrames" path="res://art/player/player_frames.tres" id="3_frames"]
+[ext_resource type="Script" path="res://debug_overlay.gd" id="4_debug"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Background" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="Sky" type="TextureRect" parent="Background"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Player" type="Node2D" parent="."]
+script = ExtResource("2_player")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Player"]
+texture_filter = 1
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("3_frames")
+animation = &"run"
+offset = Vector2(0, -25)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 270.0
+offset_bottom = 52.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "SCORE: 0"
+
+[node name="LevelLabel" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 54.0
+offset_right = 270.0
+offset_bottom = 90.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "LEVEL UP AT: 700"
+
+[node name="BestLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -270.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 52.0
+grow_horizontal = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "BEST: 0"
+horizontal_alignment = 2
+
+[node name="LivesLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -270.0
+offset_top = 54.0
+offset_right = -16.0
+offset_bottom = 90.0
+grow_horizontal = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "LIVES: 3"
+horizontal_alignment = 2
+
+[node name="MessageLabel" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -70.0
+offset_right = 230.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "TAP TO START"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PauseButton" type="Button" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 30.0
+offset_top = -110.0
+offset_right = 110.0
+offset_bottom = -30.0
+grow_vertical = 0
+mouse_filter = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 32
+text = "II"
+
+[node name="AttackButton" type="Button" parent="HUD"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -150.0
+offset_right = -30.0
+offset_bottom = -30.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 32
+text = "ATTACK"
+
+[node name="DebugLabel" type="Label" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -380.0
+offset_top = -44.0
+offset_right = 380.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "FPS"
+horizontal_alignment = 1
+script = ExtResource("4_debug")

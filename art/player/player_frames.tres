@@ -1,0 +1,56 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://art/player/person1.png" id="1_p1"]
+[ext_resource type="Texture2D" path="res://art/player/person2.png" id="2_p2"]
+[ext_resource type="Texture2D" path="res://art/player/person3.png" id="3_p3"]
+[ext_resource type="Texture2D" path="res://art/player/person4.png" id="4_p4"]
+[ext_resource type="Texture2D" path="res://art/player/person5.png" id="5_p5"]
+[ext_resource type="Texture2D" path="res://art/player/personJump1.png" id="6_j1"]
+[ext_resource type="Texture2D" path="res://art/player/personJump2.png" id="7_j2"]
+[ext_resource type="Texture2D" path="res://art/player/personJump3.png" id="8_j3"]
+[ext_resource type="Texture2D" path="res://art/player/personPunch.png" id="9_pu"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_pu")
+}],
+"loop": false,
+"name": &"attack",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_j1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_j2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_j3")
+}],
+"loop": false,
+"name": &"jump",
+"speed": 6.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_p1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_p2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_p3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_p4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_p5")
+}],
+"loop": true,
+"name": &"run",
+"speed": 10.0
+}]

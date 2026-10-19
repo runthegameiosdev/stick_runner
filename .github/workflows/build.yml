@@ -14,7 +14,7 @@ jobs:
       - name: Download exported Xcode project
         run: |
           set -e
-          wget -O archive.zip "https://www.dropbox.com/scl/fi/v2b8swpfcg5sg6ovp9gb8/ea276519-cb8b-11f1-8205-8c8b5b97465e.zip?rlkey=qhxlb97rdevablx660on7831o&dl=1"
+          wget -O archive.zip "https://www.dropbox.com/scl/fi/jrs6e100a1mb41fpnwrp6/iosbuildd.zip?rlkey=49d354o3a0r5zq0mqbtlhk4lr&st=hbw1miwx&dl=1"
           unzip archive.zip -d .
 
       - name: Build IPA

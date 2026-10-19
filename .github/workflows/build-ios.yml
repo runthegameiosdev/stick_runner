@@ -1,66 +1,82 @@
+
 name: Build iOS
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [workflow_dispatch]
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Download Godot
-      run: |
-        wget https://github.com/godotengine/godot/releases/download/3.5.3-stable/Godot_v3.5.3-stable_osx.universal.zip
-        unzip Godot_v3.5.3-stable_osx.universal.zip -d godot
-        sudo mv godot/Godot.app /Applications/Godot.app
-        sudo ln -s /Applications/Godot.app/Contents/MacOS/Godot /usr/local/bin/godot
+      - name: Download Godot 4.7 Xcode project
+        run: |
+          set -e
+          wget -O archive.zip "https://www.dropbox.com/scl/fi/jrs6e100a1mb41fpnwrp6/iosbuildd.zip?rlkey=49d354o3a0r5zq0mqbtlhk4lr&st=hbw1miwx&dl=1"
+          unzip archive.zip -d exported
 
-    - name: Download Godot Export Templates
-      run: |
-        mkdir -p ~/Library/Application\ Support/Godot/templates/3.5.3.stable
-        cd ~/Library/Application\ Support/Godot/templates/3.5.3.stable
-        wget https://github.com/godotengine/godot/releases/download/3.5.3-stable/Godot_v3.5.3-stable_export_templates.tpz
-        tar -xzf Godot_v3.5.3-stable_export_templates.tpz -C ~/Library/Application\ Support/Godot/templates/3.5.3.stable
-        cd templates
-        mv * ..
-        cd ..
-        ls
+      - name: Find Xcode project
+        id: project
+        run: |
+          set -e
+          PROJECT="$(find exported -type d -name '*.xcodeproj' -print -quit)"
 
-    - name: Create build directory
-      run: mkdir -p build
+          if [ -z "$PROJECT" ]; then
+            echo "ERROR: No .xcodeproj found in the Dropbox ZIP."
+            find exported -maxdepth 4 -print
+            exit 1
+          fi
 
-    - name: Export iOS project
-      run: godot --export "iOS" build/your_project_name.xcodeproj
-      env:
-        DISPLAY: :99.0
-        
-    - name: Set iOS Deployment Target
-      run: sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 10.0;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/' build/your_project_name.xcodeproj/project.pbxproj
+          echo "Found project: $PROJECT"
+          echo "path=$PROJECT" >> "$GITHUB_OUTPUT"
 
+      - name: Show Xcode schemes
+        run: |
+          xcodebuild -list -project "${{ steps.project.outputs.path }}"
 
-    - name: Build iOS project
-      run: xcodebuild -project build/your_project_name.xcodeproj -scheme your_project_name -configuration Development -archivePath build/your_project_name.xcarchive archive \ CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+      - name: Build and archive iOS app
+        run: |
+          set -e
 
-    - name: Export IPA
-      run: | 
-        cd build
-        cd your_project_name.xcarchive
-        cd Products
-        cd Applications
-        mkdir Payload
-        mv your_project_name.app Payload/
-        zip -r App.ipa Payload/
-        mv App.ipa ../../../
-    - name: Upload IPA to GitHub Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Ipa
-        path: build/App.ipa
+          PROJECT="${{ steps.project.outputs.path }}"
+
+          SCHEME="$(xcodebuild -list -json -project "$PROJECT" | /usr/bin/python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("project",{}).get("schemes") or [""])[0])')"
+
+          if [ -z "$SCHEME" ]; then
+            echo "ERROR: Could not find an Xcode scheme."
+            exit 1
+          fi
+
+          echo "Building scheme: $SCHEME"
+
+          xcodebuild archive \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/Game.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package IPA
+        run: |
+          set -e
+
+          APP_PATH="$(find "$RUNNER_TEMP/Game.xcarchive/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: No .app was produced by the archive."
+            exit 1
+          fi
+
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qr Game.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Game-IPA
+          path: ${{ runner.temp }}/Game.ipa
+          retention-days: 3

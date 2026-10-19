@@ -1,3 +1,4 @@
+
 name: "Build iOS app"
 
 on: [workflow_dispatch]
@@ -10,57 +11,56 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and extract Xcode project
+      - name: Download exported Xcode project
         run: |
-          wget -O archive.zip "YOUR_EXISTING_DROPBOX_DOWNLOAD_URL"
+          set -e
+          wget -O archive.zip "https://www.dropbox.com/scl/fi/v2b8swpfcg5sg6ovp9gb8/ea276519-cb8b-11f1-8205-8c8b5b97465e.zip?rlkey=qhxlb97rdevablx660on7831o&dl=1"
           unzip archive.zip -d .
 
-      - name: Build archive and create IPA
+      - name: Build IPA
         run: |
           set -e
 
           PROJECT="$(find . -type d -name '*.xcodeproj' -print -quit)"
 
           if [ -z "$PROJECT" ]; then
-            echo "ERROR: No .xcodeproj found after extraction."
-            find . -maxdepth 4 -type d -print
+            echo "ERROR: No Xcode project found in the downloaded ZIP."
+            find . -maxdepth 4 -print
             exit 1
           fi
 
-          echo "Found Xcode project: $PROJECT"
+          echo "Project: $PROJECT"
+          xcodebuild -list -project "$PROJECT"
 
           SCHEME="$(xcodebuild -list -json -project "$PROJECT" | /usr/bin/python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("project",{}).get("schemes") or [""])[0])')"
 
           if [ -z "$SCHEME" ]; then
             echo "ERROR: No Xcode scheme found."
-            xcodebuild -list -project "$PROJECT"
             exit 1
           fi
 
-          echo "Using scheme: $SCHEME"
+          echo "Scheme: $SCHEME"
 
           xcodebuild archive \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
             -archivePath "$RUNNER_TEMP/build.xcarchive" \
             -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO
+            CODE_SIGNING_ALLOWED=NO
 
           APP_PATH="$(find "$RUNNER_TEMP/build.xcarchive/Products/Applications" -maxdepth 1 -type d -name '*.app' -print -quit)"
 
           if [ -z "$APP_PATH" ]; then
-            echo "ERROR: No .app was found in the archive."
+            echo "ERROR: No app found in the Xcode archive."
             exit 1
           fi
 
           mkdir -p "$RUNNER_TEMP/Payload"
           cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
-
           cd "$RUNNER_TEMP"
-          zip -r run.ipa Payload
+          zip -qr run.ipa Payload
 
-      - name: Upload application
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: run

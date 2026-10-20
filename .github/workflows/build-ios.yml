@@ -14,7 +14,7 @@ jobs:
       - name: Download Godot 4.7 Xcode project
         run: |
           set -e
-          wget -O archive.zip "https://www.dropbox.com/scl/fi/xdhwdaazb9tqotlaqzj13/iosbuildd.zip?rlkey=rgnekiiubi84fti28u4hvu0p9&st=anm32tab&dl=0"
+          wget -O archive.zip "https://www.dropbox.com/scl/fi/71ycp6wkrvdzg01uevijo/iosbuildd.zip?rlkey=uirrl1y74zkpcgt9u019ff36p&st=2wgyybyp&dl=0"
           unzip archive.zip -d exported
 
       - name: Find Xcode project

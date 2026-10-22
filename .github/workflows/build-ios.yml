@@ -42,7 +42,8 @@ jobs:
 
           PROJECT="${{ steps.project.outputs.path }}"
 
-          SCHEME="$(xcodebuild -list -json -project "$PROJECT" | /usr/bin/python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("project",{}).get("schemes") or [""])[0])')"
+          xcodebuild -list -project "$PROJECT" 
+          SCHEME="Run!"
 
           if [ -z "$SCHEME" ]; then
             echo "ERROR: Could not find an Xcode scheme."
@@ -54,8 +55,9 @@ jobs:
           xcodebuild archive \
             -project "$PROJECT" \
             -scheme "$SCHEME" \
-            -configuration Release \
+            -destination 'generic/platform=iOS' \
             -archivePath "$RUNNER_TEMP/Game.xcarchive" \
+            -configuration Release \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Package IPA
